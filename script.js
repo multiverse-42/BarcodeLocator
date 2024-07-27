@@ -79,7 +79,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
         const config = {
             fps: 10,
-            qrbox: { width: 250, height: 250 },
+            qrbox: { width: 250, height: 100 }, // Adjust height for 1D barcodes
             aspectRatio: 1.0,
             formatsToSupport: [
                 Html5QrcodeSupportedFormats.QR_CODE,
@@ -91,7 +91,10 @@ document.addEventListener("DOMContentLoaded", function() {
                 Html5QrcodeSupportedFormats.EAN_8,
                 Html5QrcodeSupportedFormats.ITF,
                 Html5QrcodeSupportedFormats.CODABAR
-            ]
+            ],
+            experimentalFeatures: {
+                useBarCodeDetectorIfSupported: true
+            }
         };
 
         html5QrCode.start({ facingMode: "environment" }, config, onScanSuccess, onScanFailure)
@@ -114,7 +117,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
         const config = {
             fps: 10,
-            qrbox: { width: 250, height: 250 },
+            qrbox: { width: 250, height: 100 }, // Adjust height for 1D barcodes
             aspectRatio: 1.0,
             formatsToSupport: [
                 Html5QrcodeSupportedFormats.QR_CODE,
@@ -126,7 +129,10 @@ document.addEventListener("DOMContentLoaded", function() {
                 Html5QrcodeSupportedFormats.EAN_8,
                 Html5QrcodeSupportedFormats.ITF,
                 Html5QrcodeSupportedFormats.CODABAR
-            ]
+            ],
+            experimentalFeatures: {
+                useBarCodeDetectorIfSupported: true
+            }
         };
 
         html5QrCode.start({ facingMode: "environment" }, config, onScanToInputSuccess, onScanFailure)
@@ -145,12 +151,14 @@ document.addEventListener("DOMContentLoaded", function() {
 
     function onScanSuccess(decodedText, decodedResult) {
         console.log(`Scan success: ${decodedText}`, decodedResult);
+        console.log(`Barcode format: ${decodedResult.result.format.formatName}`);
+        
         if (decodedText === targetBarcode) {
-            resultDiv.textContent = `Found barcode: ${decodedText}`;
-            highlightBarcode(decodedResult.location);
+            resultDiv.textContent = `Found barcode: ${decodedText} (${decodedResult.result.format.formatName})`;
+            highlightBarcode(decodedResult.result.location);
             vibrateDevice();
         } else {
-            console.log(`Scanned barcode: ${decodedText}`);
+            console.log(`Scanned barcode: ${decodedText} (${decodedResult.result.format.formatName})`);
         }
     }
 
