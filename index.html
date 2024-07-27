@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Advanced Barcode Locator</title>
     <link rel="stylesheet" href="style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
 </head>
 <body>
     <div id="app">
@@ -14,6 +15,7 @@
         </div>
         <h1 id="title">Advanced Barcode Locator</h1>
         <div id="input-section">
+            <button id="cameraScan"><i class="fas fa-camera"></i></button>
             <input type="text" id="barcodeInput" placeholder="Enter barcode to find">
             <button id="setBarcode">Set Barcode</button>
         </div>
@@ -22,8 +24,8 @@
         <div id="result">Scanning...</div>
         <button id="startScan">Start Scanning</button>
         <div id="options">
-            <label><input type="checkbox" id="enableSound" checked> Enable Sound</label>
-            <label><input type="checkbox" id="enableVibration" checked> Enable Vibration</label>
+            <label id="enableSoundLabel"><input type="checkbox" id="enableSound" checked> Enable Sound</label>
+            <label id="enableVibrationLabel"><input type="checkbox" id="enableVibration" checked> Enable Vibration</label>
         </div>
         <button id="helpButton">Help</button>
     </div>
