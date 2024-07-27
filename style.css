@@ -1,0 +1,39 @@
+body {
+  font-family: Arial, sans-serif;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+#app {
+  text-align: center;
+}
+
+#reader {
+  width: 100%;
+  max-width: 600px;
+  margin: 20px auto;
+}
+
+#result {
+  margin-top: 20px;
+  font-weight: bold;
+}
+
+input,
+button {
+  margin: 10px;
+  padding: 10px;
+  font-size: 16px;
+}
+
+#language-buttons {
+  margin-bottom: 20px;
+}
+
+.barcode-overlay {
+  position: absolute;
+  border: 3px solid #FF0000;
+  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5);
+  pointer-events: none;
+}

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Locating Barcode Scanner</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div id="app">
+        <h1 id="title">Locating Barcode Scanner</h1>
+        <div id="language-buttons">
+            <button id="englishButton">English</button>
+            <button id="spanishButton">Español</button>
+        </div>
+        <input type="text" id="barcodeInput" placeholder="Enter barcode to search">
+        <button id="scanToInput">Scan to Input</button>
+        <button id="startScan">Start Scan</button>
+        <button id="helpButton">Help</button>
+        <div id="reader"></div>
+        <div id="result"></div>
+    </div>
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+    <script src="script.js"></script>
+</body>
+
+</html>
