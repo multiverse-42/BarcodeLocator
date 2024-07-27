@@ -15,7 +15,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     let targetBarcode = "";
     let scanning = false;
-    let overlays = [];
+    let overlay = null;
 
     const messages = {
         en: {
@@ -29,7 +29,7 @@ document.addEventListener("DOMContentLoaded", function() {
             targetBarcode: "Target Barcode: ",
             enableSound: "Enable Sound",
             enableVibration: "Enable Vibration",
-            helpMessage: "Enter the barcode you want to find, then click 'Set Barcode'. Point your camera at the shelf of shoe boxes and click 'Start Scanning'. The app will highlight found barcodes with a shoe emoji overlay.",
+            helpMessage: "Enter the barcode you want to find, then click 'Set Barcode'. Point your camera at the shelf of shoe boxes and click 'Start Scanning'. The app will highlight found barcodes with an overlay.",
             barcodeFound: "Found target barcode: ",
             scannedBarcode: "Scanned barcode: "
         },
@@ -44,7 +44,7 @@ document.addEventListener("DOMContentLoaded", function() {
             targetBarcode: "Código Objetivo: ",
             enableSound: "Activar Sonido",
             enableVibration: "Activar Vibración",
-            helpMessage: "Ingrese el código de barras que desea encontrar, luego haga clic en 'Establecer Código'. Apunte su cámara hacia el estante de cajas de zapatos y haga clic en 'Iniciar Escaneo'. La aplicación resaltará los códigos de barras encontrados con un emoji de zapato.",
+            helpMessage: "Ingrese el código de barras que desea encontrar, luego haga clic en 'Establecer Código'. Apunte su cámara hacia el estante de cajas de zapatos y haga clic en 'Iniciar Escaneo'. La aplicación resaltará los códigos de barras encontrados con una superposición.",
             barcodeFound: "Código objetivo encontrado: ",
             scannedBarcode: "Código escaneado: "
         }
@@ -124,7 +124,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
         const config = {
             fps: 10,
-            qrbox: { width: 250, height: 250 },
+            qrbox: { width: 300, height: 300 },
             aspectRatio: 1.33333,
             formatsToSupport: [
                 Html5QrcodeSupportedFormats.EAN_13,
@@ -152,8 +152,12 @@ document.addEventListener("DOMContentLoaded", function() {
     function stopScanning() {
         scanning = false;
         startScanButton.textContent = messages[currentLanguage].startScan;
+        resultDiv.textContent = "";
         readerDiv.style.display = "none";
-        removeAllOverlays();
+        if (overlay) {
+            overlay.remove();
+            overlay = null;
+        }
         html5QrCode.stop().catch((err) => {
             console.error(`Unable to stop scanning: ${err}`);
         });
@@ -185,7 +189,10 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     function highlightBarcode(location, isTarget) {
-        const overlay = document.createElement("div");
+        if (overlay) {
+            overlay.remove();
+        }
+        overlay = document.createElement("div");
         overlay.className = "barcode-overlay";
         overlay.style.position = "absolute";
         overlay.style.border = isTarget ? "3px solid #FF0000" : "3px solid #00FF00";
@@ -198,32 +205,12 @@ document.addEventListener("DOMContentLoaded", function() {
         overlay.style.width = `${location.bottomRightCorner.x - location.topLeftCorner.x}px`;
         overlay.style.height = `${location.bottomRightCorner.y - location.topLeftCorner.y}px`;
 
-        const emoji = document.createElement("span");
-        emoji.textContent = "👟";
-        emoji.style.position = "absolute";
-        emoji.style.top = "-25px";
-        emoji.style.left = "50%";
-        emoji.style.transform = "translateX(-50%)";
-        emoji.style.fontSize = "20px";
-
-        overlay.appendChild(emoji);
         document.body.appendChild(overlay);
-        overlays.push(overlay);
-
-        setTimeout(() => {
-            overlay.remove();
-            overlays = overlays.filter(o => o !== overlay);
-        }, 2000);
-    }
-
-    function removeAllOverlays() {
-        overlays.forEach(overlay => overlay.remove());
-        overlays = [];
     }
 
     function playSound() {
-        // Implementation for playing a sound
-        // ...
+        const audio = new Audio('path/to/sound.mp3');
+        audio.play();
     }
 
     function vibrateDevice() {
