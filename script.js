@@ -124,8 +124,8 @@ document.addEventListener("DOMContentLoaded", function() {
 
         const config = {
             fps: 10,
-            qrbox: { width: 300, height: 300 },
-            aspectRatio: 1.33333,
+            qrbox: { width: 250, height: 250 },
+            aspectRatio: 1.0,
             formatsToSupport: [
                 Html5QrcodeSupportedFormats.EAN_13,
                 Html5QrcodeSupportedFormats.CODE_39,
@@ -136,6 +136,9 @@ document.addEventListener("DOMContentLoaded", function() {
                 Html5QrcodeSupportedFormats.ITF,
                 Html5QrcodeSupportedFormats.CODABAR
             ],
+            videoConstraints: {
+        width: { min: 640, ideal: 1280, max: 1920 },
+        height: { min: 480, ideal: 720, max: 1080 }
             experimentalFeatures: {
                 useBarCodeDetectorIfSupported: true
             }
