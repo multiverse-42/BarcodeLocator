@@ -79,7 +79,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
         const config = {
             fps: 10,
-            qrbox: { width: 250, height: 100 }, // Adjust height for 1D barcodes
+            qrbox: undefined, // Remove static overlay
             aspectRatio: 1.0,
             formatsToSupport: [
                 Html5QrcodeSupportedFormats.QR_CODE,
@@ -117,7 +117,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
         const config = {
             fps: 10,
-            qrbox: { width: 250, height: 100 }, // Adjust height for 1D barcodes
+            qrbox: undefined, // Remove static overlay
             aspectRatio: 1.0,
             formatsToSupport: [
                 Html5QrcodeSupportedFormats.QR_CODE,
@@ -155,7 +155,7 @@ document.addEventListener("DOMContentLoaded", function() {
         
         if (decodedText === targetBarcode) {
             resultDiv.textContent = `Found barcode: ${decodedText} (${decodedResult.result.format.formatName})`;
-            highlightBarcode(decodedResult.result.location);
+            highlightBarcode(decodedResult.result.boundingBox);
             vibrateDevice();
         } else {
             console.log(`Scanned barcode: ${decodedText} (${decodedResult.result.format.formatName})`);
@@ -165,6 +165,7 @@ document.addEventListener("DOMContentLoaded", function() {
     function onScanToInputSuccess(decodedText, decodedResult) {
         console.log(`Scan to input success: ${decodedText}`, decodedResult);
         barcodeInput.value = decodedText;
+        highlightBarcode(decodedResult.result.boundingBox);
         stopScanningToInput();
     }
 
@@ -172,17 +173,17 @@ document.addEventListener("DOMContentLoaded", function() {
         console.warn(`Scan failure: ${error}`);
     }
 
-    function highlightBarcode(location) {
+    function highlightBarcode(boundingBox) {
         const overlay = document.createElement("div");
         overlay.className = "barcode-overlay";
 
         const video = document.querySelector("#reader video");
         const videoRect = video.getBoundingClientRect();
 
-        overlay.style.left = `${videoRect.left + location.topLeftCorner.x}px`;
-        overlay.style.top = `${videoRect.top + location.topLeftCorner.y}px`;
-        overlay.style.width = `${location.bottomRightCorner.x - location.topLeftCorner.x}px`;
-        overlay.style.height = `${location.bottomRightCorner.y - location.topLeftCorner.y}px`;
+        overlay.style.left = `${videoRect.left + boundingBox.x}px`;
+        overlay.style.top = `${videoRect.top + boundingBox.y}px`;
+        overlay.style.width = `${boundingBox.width}px`;
+        overlay.style.height = `${boundingBox.height}px`;
 
         document.body.appendChild(overlay);
         setTimeout(() => overlay.remove(), 2000);
