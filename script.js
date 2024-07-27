@@ -10,6 +10,8 @@ document.addEventListener("DOMContentLoaded", function() {
     const targetBarcodeDisplay = document.getElementById("targetBarcode");
     const enableSoundCheckbox = document.getElementById("enableSound");
     const enableVibrationCheckbox = document.getElementById("enableVibration");
+    const cameraScanButton = document.getElementById("cameraScan");
+    const readerDiv = document.getElementById("reader");
 
     let targetBarcode = "";
     let scanning = false;
@@ -27,10 +29,24 @@ document.addEventListener("DOMContentLoaded", function() {
             targetBarcode: "Target Barcode: ",
             enableSound: "Enable Sound",
             enableVibration: "Enable Vibration",
-            helpMessage: "Enter the barcode you want to find, then click 'Set Barcode'. Point your camera at the shelf of shoe boxes and click 'Start Scanning'. The app will highlight found barcodes with a shoe emoji overlay."
+            helpMessage: "Enter the barcode you want to find, then click 'Set Barcode'. Point your camera at the shelf of shoe boxes and click 'Start Scanning'. The app will highlight found barcodes with a shoe emoji overlay.",
+            barcodeFound: "Found target barcode: ",
+            scannedBarcode: "Scanned barcode: "
         },
         es: {
-            // Spanish translations (similar structure to English)
+            title: "Localizador Avanzado de Códigos de Barras",
+            enterBarcode: "Ingrese el código de barras a buscar",
+            setBarcode: "Establecer Código",
+            startScan: "Iniciar Escaneo",
+            stopScan: "Detener Escaneo",
+            help: "Ayuda",
+            scanning: "Escaneando...",
+            targetBarcode: "Código Objetivo: ",
+            enableSound: "Activar Sonido",
+            enableVibration: "Activar Vibración",
+            helpMessage: "Ingrese el código de barras que desea encontrar, luego haga clic en 'Establecer Código'. Apunte su cámara hacia el estante de cajas de zapatos y haga clic en 'Iniciar Escaneo'. La aplicación resaltará los códigos de barras encontrados con un emoji de zapato.",
+            barcodeFound: "Código objetivo encontrado: ",
+            scannedBarcode: "Código escaneado: "
         }
     };
 
@@ -38,8 +54,30 @@ document.addEventListener("DOMContentLoaded", function() {
 
     function updateLanguage(language) {
         currentLanguage = language;
-        // Update all text elements with the new language
-        // ...
+        document.getElementById("title").textContent = messages[language].title;
+        barcodeInput.placeholder = messages[language].enterBarcode;
+        setBarcodeButton.textContent = messages[language].setBarcode;
+        startScanButton.textContent = scanning ? messages[language].stopScan : messages[language].startScan;
+        helpButton.textContent = messages[language].help;
+        document.getElementById("enableSoundLabel").textContent = messages[language].enableSound;
+        document.getElementById("enableVibrationLabel").textContent = messages[language].enableVibration;
+        updateTargetBarcodeDisplay();
+        updateResultDiv();
+    }
+
+    function updateTargetBarcodeDisplay() {
+        targetBarcodeDisplay.textContent = messages[currentLanguage].targetBarcode + (targetBarcode || "");
+    }
+
+    function updateResultDiv() {
+        if (scanning) {
+            resultDiv.textContent = messages[currentLanguage].scanning;
+        } else if (resultDiv.textContent.includes("Found target barcode:") || resultDiv.textContent.includes("Código objetivo encontrado:")) {
+            resultDiv.textContent = messages[currentLanguage].barcodeFound + targetBarcode;
+        } else if (resultDiv.textContent.includes("Scanned barcode:") || resultDiv.textContent.includes("Código escaneado:")) {
+            const scannedCode = resultDiv.textContent.split(":")[1].trim();
+            resultDiv.textContent = messages[currentLanguage].scannedBarcode + scannedCode;
+        }
     }
 
     englishButton.addEventListener("click", () => updateLanguage('en'));
@@ -52,7 +90,7 @@ document.addEventListener("DOMContentLoaded", function() {
     setBarcodeButton.addEventListener("click", () => {
         targetBarcode = barcodeInput.value.trim();
         if (targetBarcode) {
-            targetBarcodeDisplay.textContent = messages[currentLanguage].targetBarcode + targetBarcode;
+            updateTargetBarcodeDisplay();
             if (scanning) {
                 stopScanning();
                 startScanning();
@@ -70,10 +108,19 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     });
 
-    function startScanning() {
+    cameraScanButton.addEventListener("click", () => {
+        if (!scanning) {
+            startScanning(true);
+        } else {
+            stopScanning();
+        }
+    });
+
+    function startScanning(forInput = false) {
         scanning = true;
         startScanButton.textContent = messages[currentLanguage].stopScan;
         resultDiv.textContent = messages[currentLanguage].scanning;
+        readerDiv.style.display = "block";
 
         const config = {
             fps: 10,
@@ -94,7 +141,9 @@ document.addEventListener("DOMContentLoaded", function() {
             }
         };
 
-        html5QrCode.start({ facingMode: "environment" }, config, onScanSuccess, onScanFailure)
+        html5QrCode.start({ facingMode: "environment" }, config, 
+            (decodedText, decodedResult) => onScanSuccess(decodedText, decodedResult, forInput),
+            onScanFailure)
             .catch((err) => {
                 console.error(`Unable to start scanning: ${err}`);
             });
@@ -103,17 +152,22 @@ document.addEventListener("DOMContentLoaded", function() {
     function stopScanning() {
         scanning = false;
         startScanButton.textContent = messages[currentLanguage].startScan;
-        resultDiv.textContent = "";
+        readerDiv.style.display = "none";
         removeAllOverlays();
         html5QrCode.stop().catch((err) => {
             console.error(`Unable to stop scanning: ${err}`);
         });
     }
 
-    function onScanSuccess(decodedText, decodedResult) {
+    function onScanSuccess(decodedText, decodedResult, forInput) {
         console.log(`Scan success: ${decodedText}`, decodedResult);
+        if (forInput) {
+            barcodeInput.value = decodedText;
+            stopScanning();
+            return;
+        }
         if (decodedText === targetBarcode) {
-            resultDiv.textContent = `Found target barcode: ${decodedText}`;
+            resultDiv.textContent = messages[currentLanguage].barcodeFound + decodedText;
             if (enableSoundCheckbox.checked) {
                 playSound();
             }
@@ -121,7 +175,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 vibrateDevice();
             }
         } else {
-            resultDiv.textContent = `Scanned barcode: ${decodedText}`;
+            resultDiv.textContent = messages[currentLanguage].scannedBarcode + decodedText;
         }
         highlightBarcode(decodedResult.location, decodedText === targetBarcode);
     }
